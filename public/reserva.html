@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscripción de Clase - GymPro</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body id="page-reserva">
+
+    <header class="main-header">
+        <h1>GymPro</h1>
+        <button id="logout-button" class="btn btn-secondary">Cerrar Sesión</button>
+    </header>
+
+    <main class="container">
+        
+        <h2>Inscripción a Clases Dirigidas</h2>
+        <p>Completa el formulario para reservar tu plaza.</p>
+
+        <form id="reserva-form">
+
+            <div class="form-group">
+                <label for="fecha-clase">Fecha y Hora de la Clase:</label>
+                <input type="datetime-local" id="fecha-clase" name="fecha-clase" required>
+            </div>
+
+            <div class="form-group">
+                <label for="tipo-clase">Elige tu clase:</label>
+                <select id="tipo-clase" name="tipo-clase" required>
+                    <option value="0" selected disabled>-- Selecciona una --</option>
+                    <option value="15">Spinning (15€)</option>
+                    <option value="12">Yoga (12€)</option>
+                    <option value="20">CrossFit (20€)</option>
+                    <option value="18">Zumba (18€)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="asistentes">Número de asistentes:</label>
+                <input type="number" id="asistentes" name="asistentes" value="1" min="1" required>
+            </div>
+
+            <fieldset class="form-group">
+                <legend>Extras Opcionales:</legend>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="extra-toalla" name="extra" class="extra" data-precio="2">
+                    <label for="extra-toalla">Alquiler de toalla (2€)</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="extra-agua" name="extra" class="extra" data-precio="1">
+                    <label for="extra-agua">Botella de agua (1€)</label>
+                </div>
+            </fieldset>
+
+            <div class="form-group">
+                <label for="comentarios">Comentarios (máx 200 caracteres):</label>
+                <textarea id="comentarios" name="comentarios" maxlength="200"></textarea>
+            </div>
+
+            <div class="total-section">
+                <h3>Precio Total: <span id="precio-total">0.00</span> €</h3>
+            </div>
+            
+            <div id="error-message" class="error"></div>
+
+            <div class="form-buttons">
+                <button type="submit" class="btn btn-primary">Confirmar Inscripción</button>
+                
+                <button type="reset" class="btn btn-secondary">Restablecer</button>
+            </div>
+
+        </form>
+    </main>
+
+    <script src="./js/script.js" defer></script>
+</body>
+</html>

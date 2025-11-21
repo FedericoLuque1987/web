@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - GymPro</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body id="page-login">
+
+    <main class="login-container">
+        
+        <h1>GymPro</h1>
+        <h2>Acceso de Socios</h2>
+        <p>Inicia sesión para reservar tus clases.</p>
+
+        <form id="login-form">
+            
+            <div class="form-group">
+                <label for="email">Correo electrónico:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <div class="form-group-checkbox">
+                <input type="checkbox" id="remember-me" name="remember-me">
+                <label for="remember-me">Recordar usuario</label>
+            </div>
+
+            <button type="submit" class="btn">Iniciar sesión</button>
+
+            <div id="error-message" class="error"></div>
+            
+        </form>
+
+    </main>
+
+    <script src="./js/script.js" defer></script>
+</body>
+</html>
