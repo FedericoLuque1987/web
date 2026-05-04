@@ -5,9 +5,17 @@ import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const reservasPath = path.join(__dirname, 'data', 'reservas.json');
+const rutaReservas = path.join(__dirname, 'data', 'reservas.json');
 const contenidoReservas = fs.readFileSync(rutaReservas, 'utf-8');
-console.log(contenidoReservas);
+const reservas = JSON.parse(contenidoReservas);
+const nuevaReserva = {
+  fecha: '2026-01-10',
+  tipo: 'aula informática',
+  unidades: 1,
+  precio: 50
+};
+reservas.push(nuevaReserva);
+console.log(reservas);
 
 const app = express();
 app.use(express.urlencoded({ extended: true }))
