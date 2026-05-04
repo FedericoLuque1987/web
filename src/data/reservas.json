@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "fecha": "2026-05-05T15:40",
+    "tipo": "15",
+    "unidades": 2,
+    "precio": 30
+  },
+  {
+    "fecha": "2026-05-06T22:44",
+    "tipo": "18",
+    "unidades": 3,
+    "precio": 54
+  },
+  {
+    "fecha": "2026-05-08T22:44",
+    "tipo": "20",
+    "unidades": 1,
+    "precio": 20
+  }
+]

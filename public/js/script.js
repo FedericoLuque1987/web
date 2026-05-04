@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // 2. Capturar elementos del formulario
         const reservaForm = document.getElementById("reserva-form");
-        const tipoClase = document.getElementById("tipo-clase");
+        const tipoClase = document.getElementById("tipoClase");
         const asistentes = document.getElementById("asistentes");
         const extrasCheckboxes = document.querySelectorAll(".extra");
         const precioTotalSpan = document.getElementById("precio-total");
@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
 
             // 5.2. Recoger todos los datos para el resumen
-            const fecha = document.getElementById("fecha-clase").value;
+            const fecha = document.getElementById("fechaClase").value;
             // .selectedOptions[0].text nos da el texto
             const claseTexto = tipoClase.selectedOptions[0].text;
             const numAsistentes = asistentes.value;

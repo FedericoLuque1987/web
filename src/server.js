@@ -8,17 +8,9 @@ const __dirname = path.dirname(__filename);
 const rutaReservas = path.join(__dirname, 'data', 'reservas.json');
 const contenidoReservas = fs.readFileSync(rutaReservas, 'utf-8');
 const reservas = JSON.parse(contenidoReservas);
-const nuevaReserva = {
-  fecha: '2026-01-10',
-  tipo: 'aula informática',
-  unidades: 1,
-  precio: 50
-};
-reservas.push(nuevaReserva);
-console.log(reservas);
 
 const app = express();
-app.use(express.urlencoded({ extended: true }))
+app.use(express.urlencoded({ extended: true }));
 const PORT = 3000;
 
 const rutaPublic = path.join(__dirname, '../public');
@@ -48,19 +40,16 @@ app.post("/login", (req, res) => {
         return;
     }
 
-    // Comprobamos usuario 1
     if (email === usuarioCorrecto && password === passwordCorrecta) {
         res.send("Bienvenido, has iniciado sesión correctamente.");
         return;
     }
-    
-    // Comprobamos usuario 2 (fede)
+
     if (email === usuarioCorrecto1 && password === passwordCorrecta1) {
         res.send("Bienvenido Federico, has iniciado sesión correctamente.");
         return;
     }
 
-    // Gestión de errores detallada 
     if (email !== usuarioCorrecto && password === passwordCorrecta) {
         res.send("Usuario incorrecto.");
     } else if (email === usuarioCorrecto && password !== passwordCorrecta) {
@@ -76,19 +65,16 @@ app.post("/reserva", (req, res) => {
     const tipoClase = req.body.tipoClase;
     const asistentes = req.body.asistentes;
 
-    // Comprobación de campos obligatorios
     if (!fechaClase || !tipoClase || !asistentes) {
         res.send("Faltan datos obligatorios en la reserva.");
         return;
     }
 
-    // Validación numérica
     if (Number(asistentes) <= 0) {
         res.send("El número de asistentes debe ser mayor que cero.");
         return;
     }
 
-    // Validación de selección de clase
     if (Number(tipoClase) == 0) {
         res.send("Debes seleccionar una clase válida.");
         return;
@@ -100,20 +86,36 @@ app.post("/reserva", (req, res) => {
 app.post("/resumen", (req, res) => {
     const { fechaClase, tipoClase, asistentes } = req.body;
 
-    // 1. Validación de existencia de datos (El servidor comprueba que llega información)
     if (!fechaClase || !tipoClase || !asistentes) {
         res.send("Error de flujo: No se han recibido datos de reserva. No puedes acceder al resumen directamente.");
         return;
     }
 
-    // 2. Validación de lógica de negocio (asistentes positivos, clase seleccionada)
     if (Number(asistentes) <= 0 || Number(tipoClase) == 0) {
         res.send("Error en los datos: La reserva no es válida.");
         return;
     }
 
-    // 3. Si todo es correcto, el servidor "autoriza" la vista y envía el archivo
-    res.sendFile(path.join(rutaPublic, 'resumen.html'));
+    const nuevaReserva = {
+        fecha: fechaClase,
+        tipo: tipoClase,
+        unidades: Number(asistentes),
+        precio: Number(tipoClase) * Number(asistentes)
+    };
+
+    reservas.push(nuevaReserva);
+
+    const reservasTexto = JSON.stringify(reservas, null, 2);
+
+    fs.writeFile(rutaReservas, reservasTexto, (error) => {
+        if (error) {
+            console.log('Error al guardar las reservas');
+            res.send('Error al guardar la reserva.');
+        } else {
+            console.log('Reservas guardadas correctamente');
+            res.sendFile(path.join(rutaPublic, 'resumen.html'));
+        }
+    });
 });
 
 
