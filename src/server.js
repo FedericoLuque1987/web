@@ -1,9 +1,13 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const reservasPath = path.join(__dirname, 'data', 'reservas.json');
+const contenidoReservas = fs.readFileSync(rutaReservas, 'utf-8');
+console.log(contenidoReservas);
 
 const app = express();
 app.use(express.urlencoded({ extended: true }))
