@@ -16,5 +16,17 @@
     "tipo": "20",
     "unidades": 1,
     "precio": 20
+  },
+  {
+    "fecha": "2026-05-08T19:10",
+    "tipo": "15",
+    "unidades": 2,
+    "precio": 30
+  },
+  {
+    "fecha": "2026-05-07T21:15",
+    "tipo": "20",
+    "unidades": 2,
+    "precio": 40
   }
 ]

@@ -1,13 +1,11 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import fs from 'fs';
+import Reserva from './models/Reserva.js';
+import { leerReservas, guardarReservas } from './services/reservasService.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const rutaReservas = path.join(__dirname, 'data', 'reservas.json');
-const contenidoReservas = fs.readFileSync(rutaReservas, 'utf-8');
-const reservas = JSON.parse(contenidoReservas);
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -96,28 +94,24 @@ app.post("/resumen", (req, res) => {
         return;
     }
 
-    const nuevaReserva = {
-        fecha: fechaClase,
-        tipo: tipoClase,
-        unidades: Number(asistentes),
-        precio: Number(tipoClase) * Number(asistentes)
-    };
+    const nuevaReserva = new Reserva(
+        fechaClase,
+        tipoClase,
+        Number(asistentes),
+        Number(tipoClase) * Number(asistentes)
+    );
 
+    const reservas = leerReservas();
     reservas.push(nuevaReserva);
 
-    const reservasTexto = JSON.stringify(reservas, null, 2);
-
-    fs.writeFile(rutaReservas, reservasTexto, (error) => {
+    guardarReservas(reservas, (error) => {
         if (error) {
-            console.log('Error al guardar las reservas');
             res.send('Error al guardar la reserva.');
         } else {
-            console.log('Reservas guardadas correctamente');
             res.sendFile(path.join(rutaPublic, 'resumen.html'));
         }
     });
 });
-
 
 
 app.use((req, res) => {
