@@ -1,17 +1,25 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import session from 'express-session';
 import Reserva from './models/Reserva.js';
 import { leerReservas, guardarReservas } from './services/reservasService.js';
+import { requiereAutenticacion } from './middlewares/authMiddleware.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
+app.use(session({
+    secret: 'mi_clave_secreta',
+    resave: false,
+    saveUninitialized: false
+}));
 const PORT = 3000;
 
 const rutaPublic = path.join(__dirname, '../public');
+const rutaViews = path.join(__dirname, 'views');
 
 app.use(express.static(rutaPublic));
 
@@ -28,8 +36,6 @@ app.post("/login", (req, res) => {
     const usuarioCorrecto1 = "fede@fede.com";
     const passwordCorrecta1 = "321";
 
-    console.log(req.body);
-
     const email = req.body.email;
     const password = req.body.password;
 
@@ -39,11 +45,15 @@ app.post("/login", (req, res) => {
     }
 
     if (email === usuarioCorrecto && password === passwordCorrecta) {
+        req.session.autenticado = true;
+        req.session.usuario = email;
         res.send("Bienvenido, has iniciado sesión correctamente.");
         return;
     }
 
     if (email === usuarioCorrecto1 && password === passwordCorrecta1) {
+        req.session.autenticado = true;
+        req.session.usuario = email;
         res.send("Bienvenido Federico, has iniciado sesión correctamente.");
         return;
     }
@@ -57,11 +67,12 @@ app.post("/login", (req, res) => {
     }
 });
 
+app.get('/reserva', requiereAutenticacion, (req, res) => {
+    res.sendFile(path.join(rutaViews, 'reserva.html'));
+});
 
-app.post("/reserva", (req, res) => {
-    const fechaClase = req.body.fechaClase;
-    const tipoClase = req.body.tipoClase;
-    const asistentes = req.body.asistentes;
+app.post('/reserva', requiereAutenticacion, (req, res) => {
+    const { fechaClase, tipoClase, asistentes } = req.body;
 
     if (!fechaClase || !tipoClase || !asistentes) {
         res.send("Faltan datos obligatorios en la reserva.");
@@ -75,22 +86,6 @@ app.post("/reserva", (req, res) => {
 
     if (Number(tipoClase) == 0) {
         res.send("Debes seleccionar una clase válida.");
-        return;
-    }
-
-    res.send("Reserva registrada correctamente.");
-});
-
-app.post("/resumen", (req, res) => {
-    const { fechaClase, tipoClase, asistentes } = req.body;
-
-    if (!fechaClase || !tipoClase || !asistentes) {
-        res.send("Error de flujo: No se han recibido datos de reserva. No puedes acceder al resumen directamente.");
-        return;
-    }
-
-    if (Number(asistentes) <= 0 || Number(tipoClase) == 0) {
-        res.send("Error en los datos: La reserva no es válida.");
         return;
     }
 
@@ -113,6 +108,14 @@ app.post("/resumen", (req, res) => {
     });
 });
 
+app.get('/logout', (req, res) => {
+    req.session.destroy((error) => {
+        if (error) {
+            return res.status(500).send('Error al cerrar la sesión');
+        }
+        res.send('Sesión cerrada correctamente');
+    });
+});
 
 app.use((req, res) => {
     res.status(404).send('Error 404: página no encontrada');
