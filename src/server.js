@@ -3,13 +3,21 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import session from 'express-session';
 import Reserva from './models/Reserva.js';
-import { leerReservas, guardarReservas } from './services/reservasService.js';
+import {
+    guardarReserva,
+    obtenerReservasPorUsuario,
+    actualizarReserva,
+    eliminarReserva
+} from './services/reservasService.js';
 import { requiereAutenticacion } from './middlewares/authMiddleware.js';
+import { comprobarConexion } from './config/db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+comprobarConexion();
+
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
     secret: 'mi_clave_secreta',
@@ -71,41 +79,116 @@ app.get('/reserva', requiereAutenticacion, (req, res) => {
     res.sendFile(path.join(rutaViews, 'reserva.html'));
 });
 
-app.post('/reserva', requiereAutenticacion, (req, res) => {
-    const { fechaClase, tipoClase, asistentes } = req.body;
+app.post('/reserva', requiereAutenticacion, async (req, res) => {
+    try {
+        const { fechaClase, tipoClase, asistentes } = req.body;
 
-    if (!fechaClase || !tipoClase || !asistentes) {
-        res.send("Faltan datos obligatorios en la reserva.");
-        return;
-    }
-
-    if (Number(asistentes) <= 0) {
-        res.send("El número de asistentes debe ser mayor que cero.");
-        return;
-    }
-
-    if (Number(tipoClase) == 0) {
-        res.send("Debes seleccionar una clase válida.");
-        return;
-    }
-
-    const nuevaReserva = new Reserva(
-        fechaClase,
-        tipoClase,
-        Number(asistentes),
-        Number(tipoClase) * Number(asistentes)
-    );
-
-    const reservas = leerReservas();
-    reservas.push(nuevaReserva);
-
-    guardarReservas(reservas, (error) => {
-        if (error) {
-            res.send('Error al guardar la reserva.');
-        } else {
-            res.sendFile(path.join(rutaPublic, 'resumen.html'));
+        if (!fechaClase || !tipoClase || !asistentes) {
+            return res.status(400).send('Faltan datos obligatorios en la reserva.');
         }
-    });
+
+        if (Number(asistentes) <= 0) {
+            return res.status(400).send('El número de asistentes debe ser mayor que cero.');
+        }
+
+        if (Number(tipoClase) == 0) {
+            return res.status(400).send('Debes seleccionar una clase válida.');
+        }
+
+        const usuario = req.session.usuario;
+        const precio = Number(tipoClase) * Number(asistentes);
+
+        const nuevaReserva = new Reserva(
+            fechaClase,
+            tipoClase,
+            asistentes,
+            precio,
+            usuario
+        );
+
+        const idGenerado = await guardarReserva(nuevaReserva);
+
+        res.send(`
+            <h2>Reserva guardada correctamente en MySQL.</h2>
+            <p>Identificador de la reserva: ${idGenerado}</p>
+            <p><a href="/reservas">Ver mis reservas</a></p>
+        `);
+    } catch (error) {
+        console.error('Error al guardar la reserva:', error);
+        res.status(500).send('Error al guardar la reserva en la base de datos.');
+    }
+});
+
+app.get('/reservas', requiereAutenticacion, async (req, res) => {
+    try {
+        const usuario = req.session.usuario;
+        const reservas = await obtenerReservasPorUsuario(usuario);
+        res.json(reservas);
+    } catch (error) {
+        console.error('Error al consultar reservas:', error);
+        res.status(500).send('Error al consultar las reservas.');
+    }
+});
+
+app.post('/reservas/actualizar', requiereAutenticacion, async (req, res) => {
+    try {
+        const { id, fecha, tipo, unidades, precio } = req.body;
+
+        if (!id || !fecha || !tipo || !unidades || !precio) {
+            return res.status(400).send('Faltan datos para actualizar la reserva.');
+        }
+
+        const usuario = req.session.usuario;
+
+        const reservaActualizada = new Reserva(
+            fecha,
+            tipo,
+            unidades,
+            precio,
+            usuario
+        );
+
+        const filasModificadas = await actualizarReserva(
+            id,
+            reservaActualizada,
+            usuario
+        );
+
+        if (filasModificadas === 0) {
+            return res.status(404).send(
+                'No se ha actualizado ninguna reserva. Puede que no exista o que no pertenezca al usuario autenticado.'
+            );
+        }
+
+        res.send('Reserva actualizada correctamente.');
+    } catch (error) {
+        console.error('Error al actualizar reserva:', error);
+        res.status(500).send('Error al actualizar la reserva.');
+    }
+});
+
+app.post('/reservas/eliminar', requiereAutenticacion, async (req, res) => {
+    try {
+        const { id } = req.body;
+
+        if (!id) {
+            return res.status(400).send('Falta el id de la reserva que se quiere eliminar.');
+        }
+
+        const usuario = req.session.usuario;
+        const filasEliminadas = await eliminarReserva(id, usuario);
+
+        if (filasEliminadas === 0) {
+            return res.status(404).send(
+                'No se ha eliminado ninguna reserva. Puede que no exista o que no pertenezca al usuario autenticado.'
+            );
+        }
+
+        res.send('Reserva eliminada correctamente.');
+    } catch (error) {
+        console.error('Error al eliminar reserva:', error);
+        res.status(500).send('Error al eliminar la reserva.');
+    }
 });
 
 app.get('/logout', (req, res) => {

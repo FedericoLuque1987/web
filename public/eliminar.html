@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar Reserva - GymPro</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+    <header class="main-header">
+        <h1>GymPro</h1>
+    </header>
+
+    <main class="container">
+
+        <h2>Eliminar Reserva</h2>
+        <p>Introduce el identificador de la reserva que deseas eliminar.</p>
+
+        <form method="POST" action="/reservas/eliminar">
+
+            <div class="form-group">
+                <label for="id">ID de la reserva:</label>
+                <input type="number" id="id" name="id" placeholder="ID de la reserva" required>
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="btn btn-primary">Eliminar reserva</button>
+            </div>
+
+        </form>
+
+        <p style="margin-top: 1rem;">
+            <a href="/reservas">Ver mis reservas</a> |
+            <a href="/actualizar.html">Actualizar una reserva</a>
+        </p>
+
+    </main>
+
+</body>
+</html>

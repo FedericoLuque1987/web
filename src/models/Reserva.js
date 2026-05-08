@@ -1,9 +1,10 @@
 class Reserva {
-    constructor(fecha, tipo, unidades, precio) {
+    constructor(fecha, tipo, unidades, precio, usuario) {
         this.fecha = fecha;
         this.tipo = tipo;
-        this.unidades = unidades;
-        this.precio = precio;
+        this.unidades = Number(unidades);
+        this.precio = Number(precio);
+        this.usuario = usuario;
     }
 }
 
